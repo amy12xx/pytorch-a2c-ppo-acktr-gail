@@ -104,8 +104,8 @@ def main():
         seed=args.seed,
         task=args.env_name,
         num_envs=args.num_processes,
-        sim_device="cuda:0",
-        rl_device="cuda:0",
+        sim_device=device,
+        rl_device=device,
         graphics_device_id=0,
         multi_gpu=False,
         virtual_screen_capture=args.capture_video,
@@ -209,9 +209,9 @@ def main():
                 if "r" in infos.keys():
                     episode_rewards.extend(infos['r'])
 
-                masks = torch.FloatTensor(done)
+                masks = torch.FloatTensor(done, device)
                 if "r" in infos.keys():
-                    bad_masks = torch.FloatTensor(1. - infos["time_outs"])
+                    bad_masks = torch.FloatTensor(1. - infos["time_outs"], device)
                 else:
                     print("No timeout info present.")
 
