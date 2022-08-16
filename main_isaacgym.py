@@ -211,9 +211,9 @@ def main():
                 if "r" in infos.keys():
                     episode_rewards.extend(infos['r'])
 
-                masks = torch.FloatTensor(done, device)
+                masks = torch.FloatTensor(done).to(device)
                 if "r" in infos.keys():
-                    bad_masks = torch.FloatTensor(1. - infos["time_outs"], device)
+                    bad_masks = torch.FloatTensor(1. - infos["time_outs"]).to(device)
                 else:
                     print("No timeout info present.")
 
