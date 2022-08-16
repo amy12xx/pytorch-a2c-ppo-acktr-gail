@@ -102,8 +102,8 @@ def main():
     #                      args.gamma, args.log_dir, device, False)
     envs = isaacgymenvs.make(
         seed=args.seed,
-        task=args.env_id,
-        num_envs=args.num_envs,
+        task=args.env_name,
+        num_envs=args.num_processes,
         sim_device="cuda:0",
         rl_device="cuda:0",
         graphics_device_id=0,
