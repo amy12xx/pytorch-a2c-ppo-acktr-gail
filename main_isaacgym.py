@@ -209,7 +209,7 @@ def main():
 
             if isinstance(infos, dict):
                 if "r" in infos.keys():
-                    episode_rewards.extend(infos['r'])
+                    episode_rewards.extend(infos['r'].cpu().numpy())
 
                 masks = done.clone()
                 if "r" in infos.keys():
