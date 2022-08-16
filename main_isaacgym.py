@@ -204,19 +204,32 @@ def main():
 
             # Obser reward and next obs
             obs, reward, done, infos = envs.step(action)
-            print(reward)
-            print(infos)
 
-            for info in infos:
-                if isinstance(info, dict) and 'episode' in info.keys():
-                    episode_rewards.append(info['episode']['r'])
+            if isinstance(infos, dict):
+                if "r" in infos.keys():
+                    episode_rewards.extend(infos['r'])
 
-            # If done then clean the history of observations.
-            masks = torch.FloatTensor(
-                [[0.0] if done_ else [1.0] for done_ in done])
-            bad_masks = torch.FloatTensor(
-                [[0.0] if 'bad_transition' in info.keys() else [1.0]
-                 for info in infos])
+                masks = torch.FloatTensor(done)
+                if "r" in infos.keys():
+                    bad_masks = torch.FloatTensor(1. - infos["time_outs"])
+                else:
+                    print("No timeout info present.")
+
+            elif isinstance(infos, list):
+                for info in infos:
+                    if 'episode' in info.keys():
+                        episode_rewards.append(info['episode']['r'])
+
+                # If done then clean the history of observations.
+                masks = torch.FloatTensor(
+                    [[0.0] if done_ else [1.0] for done_ in done])
+                bad_masks = torch.FloatTensor(
+                    [[0.0] if 'bad_transition' in info.keys() else [1.0]
+                    for info in infos])
+
+            else:
+                print(f"info not in correct format, should be dict (isaacgym) or list(sb3). {type(infos)}")
+
             rollouts.insert(obs, recurrent_hidden_states, action,
                             action_log_prob, value, reward, masks, bad_masks)
 
