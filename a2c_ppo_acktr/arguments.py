@@ -163,8 +163,6 @@ def get_args():
         help="the wandb's project name")
     parser.add_argument("--wandb-entity", type=str, default=None,
         help="the entity (team) of wandb's project")
-    parser.add_argument("--capture-video", type=lambda x: bool(strtobool(x)), default=False, nargs="?", const=True,
-        help="weather to capture videos of the agent performances (check out `videos` folder)")
     parser.add_argument("--record-video-step-frequency", type=int, default=1464,
         help="the frequency at which to record the videos")
     args = parser.parse_args()

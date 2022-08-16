@@ -111,15 +111,15 @@ def main():
         virtual_screen_capture=args.capture_video,
         force_render=False,
     )
-    if args.capture_video:
-        envs.is_vector_env = True
-        print(f"record_video_step_frequency={args.record_video_step_frequency}")
-        envs = gym.wrappers.RecordVideo(
-            envs,
-            f"videos/{run_name}",
-            step_trigger=lambda step: step % args.record_video_step_frequency == 0,
-            video_length=100,  # for each video record up to 100 steps
-        )
+    # if args.capture_video:
+    #     envs.is_vector_env = True
+    #     print(f"record_video_step_frequency={args.record_video_step_frequency}")
+    #     envs = gym.wrappers.RecordVideo(
+    #         envs,
+    #         f"videos/{run_name}",
+    #         step_trigger=lambda step: step % args.record_video_step_frequency == 0,
+    #         video_length=100,  # for each video record up to 100 steps
+    #     )
     envs = ExtractObsWrapper(envs)
     envs = RecordEpisodeStatisticsTorch(envs, device)
     envs.single_action_space = envs.action_space
