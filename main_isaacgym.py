@@ -232,6 +232,7 @@ def main():
             else:
                 print(f"info not in correct format, should be dict (isaacgym) or list(sb3). {type(infos)}")
 
+            print(reward.shape, rollouts.rewards.shape)
             rollouts.insert(obs, recurrent_hidden_states, action,
                             action_log_prob, value, reward, masks, bad_masks)
 
