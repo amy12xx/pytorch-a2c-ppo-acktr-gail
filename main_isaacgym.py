@@ -67,6 +67,8 @@ def main():
     torch.manual_seed(args.seed)
     torch.cuda.manual_seed_all(args.seed)
 
+    assert args.cuda, "Cuda must be set for IsaacGym"
+
     if args.cuda and torch.cuda.is_available() and args.cuda_deterministic:
         torch.backends.cudnn.benchmark = False
         torch.backends.cudnn.deterministic = True
@@ -104,8 +106,8 @@ def main():
         seed=args.seed,
         task=args.env_name,
         num_envs=args.num_processes,
-        sim_device=device,
-        rl_device=device,
+        sim_device="cuda:0",
+        rl_device="cuda:0",
         graphics_device_id=0,
         multi_gpu=False,
         virtual_screen_capture=args.capture_video,
