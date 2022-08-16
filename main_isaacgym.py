@@ -213,7 +213,7 @@ def main():
 
                 masks = done.clone()
                 if "r" in infos.keys():
-                    bad_masks = 1. - infos["time_outs"]
+                    bad_masks = ~infos["time_outs"]
                 else:
                     print("No timeout info present.")
 
