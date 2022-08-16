@@ -206,7 +206,6 @@ def main():
 
             # Obser reward and next obs
             obs, reward, done, infos = envs.step(action)
-            reward = reward.reshape(-1, 1)
 
             if isinstance(infos, dict):
                 if "r" in infos.keys():
@@ -233,6 +232,9 @@ def main():
             else:
                 print(f"info not in correct format, should be dict (isaacgym) or list(sb3). {type(infos)}")
 
+            reward = reward.reshape(-1, 1)
+            masks = masks.reshape(-1, 1)
+            bad_masks = bad_masks.reshape(-1, 1)
             rollouts.insert(obs, recurrent_hidden_states, action,
                             action_log_prob, value, reward, masks, bad_masks)
 
