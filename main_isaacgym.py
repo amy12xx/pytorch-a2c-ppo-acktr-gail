@@ -206,6 +206,7 @@ def main():
 
             # Obser reward and next obs
             obs, reward, done, infos = envs.step(action)
+            reward = reward.reshape(-1, 1)
 
             if isinstance(infos, dict):
                 if "r" in infos.keys():
