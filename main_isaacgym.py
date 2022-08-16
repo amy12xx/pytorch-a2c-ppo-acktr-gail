@@ -204,9 +204,11 @@ def main():
 
             # Obser reward and next obs
             obs, reward, done, infos = envs.step(action)
+            print(reward)
+            print(infos)
 
             for info in infos:
-                if 'episode' in info.keys():
+                if isinstance(info, dict) and 'episode' in info.keys():
                     episode_rewards.append(info['episode']['r'])
 
             # If done then clean the history of observations.
