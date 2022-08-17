@@ -94,6 +94,7 @@ class Discriminator(nn.Module):
             self.optimizer.zero_grad()
             (gail_loss + grad_pen).backward()
             self.optimizer.step()
+        assert n >= 1, "gail update loop did not execute."
         return loss / n
 
     def predict_reward(self, state, action, gamma, masks, update_rms=True):
