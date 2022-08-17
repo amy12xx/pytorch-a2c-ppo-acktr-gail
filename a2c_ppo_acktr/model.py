@@ -205,9 +205,9 @@ class CNNBase(NNBase):
 
 class MLPBase(NNBase):
     def __init__(self, obs_shape, recurrent=False, hidden_size=64):
-        super(MLPBase, self).__init__(recurrent, num_inputs, hidden_size)
-
         num_inputs = obs_shape[0]
+
+        super(MLPBase, self).__init__(recurrent, num_inputs, hidden_size)
 
         self.normalize_input = True
         self.running_mean_std = RunningMeanStd(obs_shape)
