@@ -237,7 +237,7 @@ class MLPBase(NNBase):
     def norm_obs_no_update(self, observation):
         current_mean = self.running_mean_std.running_mean
         current_var = self.running_mean_std.running_var
-        y = (observation - current_mean.float()) / torch.sqrt(current_var.float() + self.epsilon)
+        y = (observation - current_mean.float()) / torch.sqrt(current_var.float() + self.running_mean_std.epsilon)
         y = torch.clamp(y, min=-5.0, max=5.0)
         return y
 
