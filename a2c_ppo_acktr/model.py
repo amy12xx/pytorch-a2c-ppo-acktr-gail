@@ -5,6 +5,7 @@ import torch.nn.functional as F
 
 from a2c_ppo_acktr.distributions import Bernoulli, Categorical, DiagGaussian
 from a2c_ppo_acktr.utils import init
+from rl_games.algos_torch.running_mean_std import RunningMeanStd
 
 
 class Flatten(nn.Module):
@@ -25,7 +26,7 @@ class Policy(nn.Module):
             else:
                 raise NotImplementedError
 
-        self.base = base(obs_shape[0], **base_kwargs)
+        self.base = base(obs_shape, **base_kwargs)
 
         if action_space.__class__.__name__ == "Discrete":
             num_outputs = action_space.n
@@ -167,8 +168,10 @@ class NNBase(nn.Module):
 
 
 class CNNBase(NNBase):
-    def __init__(self, num_inputs, recurrent=False, hidden_size=512):
+    def __init__(self, obs_shape, recurrent=False, hidden_size=512):
         super(CNNBase, self).__init__(recurrent, hidden_size, hidden_size)
+
+        num_inputs = obs_shape[0]
 
         init_ = lambda m: init(m, nn.init.orthogonal_, lambda x: nn.init.
                                constant_(x, 0), nn.init.calculate_gain('relu'))
@@ -186,8 +189,13 @@ class CNNBase(NNBase):
 
         self.train()
 
+    def norm_obs(self, observation):
+        with torch.no_grad():
+            return observation / 255.0
+
     def forward(self, inputs, rnn_hxs, masks):
-        x = self.main(inputs / 255.0)
+        x = self.norm_obs(inputs)
+        x = self.main(x)
 
         if self.is_recurrent:
             x, rnn_hxs = self._forward_gru(x, rnn_hxs, masks)
@@ -196,8 +204,13 @@ class CNNBase(NNBase):
 
 
 class MLPBase(NNBase):
-    def __init__(self, num_inputs, recurrent=False, hidden_size=64):
+    def __init__(self, obs_shape, recurrent=False, hidden_size=64):
         super(MLPBase, self).__init__(recurrent, num_inputs, hidden_size)
+
+        num_inputs = obs_shape[0]
+
+        self.normalize_input = True
+        self.running_mean_std = RunningMeanStd(obs_shape)
 
         if recurrent:
             num_inputs = hidden_size
@@ -217,8 +230,19 @@ class MLPBase(NNBase):
 
         self.train()
 
+    def norm_obs(self, observation):
+        with torch.no_grad():
+            return self.running_mean_std(observation) if self.normalize_input else observation
+
+    def norm_obs_no_update(self, observation):
+        current_mean = self.running_mean_std.running_mean
+        current_var = self.running_mean_std.running_var
+        y = (observation - current_mean.float()) / torch.sqrt(current_var.float() + self.epsilon)
+        y = torch.clamp(y, min=-5.0, max=5.0)
+        return y
+
     def forward(self, inputs, rnn_hxs, masks):
-        x = inputs
+        x = self.norm_obs(inputs)
 
         if self.is_recurrent:
             x, rnn_hxs = self._forward_gru(x, rnn_hxs, masks)

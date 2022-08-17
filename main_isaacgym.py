@@ -99,6 +99,11 @@ def main():
 
     torch.set_num_threads(1)
     device = torch.device("cuda:0" if args.cuda else "cpu")
+    device_str = "cuda:0" if args.cuda else "cpu"
+
+    if args.gail:
+        print("Setting use_proper_time_limits to True for GAIL")
+        args.use_proper_time_limits = True
 
     # envs = make_vec_envs(args.env_name, args.seed, args.num_processes,
     #                      args.gamma, args.log_dir, device, False)
@@ -106,22 +111,22 @@ def main():
         seed=args.seed,
         task=args.env_name,
         num_envs=args.num_processes,
-        sim_device="cuda:0",
-        rl_device="cuda:0",
+        sim_device=device_str,
+        rl_device=device_str,
         graphics_device_id=0,
         multi_gpu=False,
         virtual_screen_capture=args.capture_video,
         force_render=False,
     )
-    # if args.capture_video:
-    #     envs.is_vector_env = True
-    #     print(f"record_video_step_frequency={args.record_video_step_frequency}")
-    #     envs = gym.wrappers.RecordVideo(
-    #         envs,
-    #         f"videos/{run_name}",
-    #         step_trigger=lambda step: step % args.record_video_step_frequency == 0,
-    #         video_length=100,  # for each video record up to 100 steps
-    #     )
+    if args.capture_video:
+        envs.is_vector_env = True
+        print(f"record_video_step_frequency={args.record_video_step_frequency}")
+        envs = gym.wrappers.RecordVideo(
+            envs,
+            f"videos/{run_name}",
+            step_trigger=lambda step: step % args.record_video_step_frequency == 0,
+            video_length=100,  # for each video record up to 100 steps
+        )
     envs = ExtractObsWrapper(envs)
     envs = RecordEpisodeStatisticsTorch(envs, device)
     envs.single_action_space = envs.action_space
@@ -251,8 +256,10 @@ def main():
             if j < 10:
                 gail_epoch = 100  # Warm up
             for _ in range(gail_epoch):
+                # discr.update(gail_train_loader, rollouts,
+                #              utils.get_vec_normalize(envs)._obfilt)
                 discr.update(gail_train_loader, rollouts,
-                             utils.get_vec_normalize(envs)._obfilt)
+                             agent.actor_critic.base.norm_obs_no_update)
 
             for step in range(args.num_steps):
                 rollouts.rewards[step] = discr.predict_reward(
