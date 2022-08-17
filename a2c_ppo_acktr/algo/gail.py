@@ -59,7 +59,6 @@ class Discriminator(nn.Module):
 
         policy_data_generator = rollouts.feed_forward_generator(
             None, mini_batch_size=expert_loader.batch_size)
-        print(f"policy_data_generator={policy_data_generator}")
 
         loss = 0
         n = 0
