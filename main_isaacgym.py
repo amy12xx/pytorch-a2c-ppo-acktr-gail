@@ -195,6 +195,7 @@ def main():
     num_updates = int(
         args.num_env_steps) // args.num_steps // args.num_processes
     for j in range(num_updates):
+        actor_critic.train()
 
         if args.use_linear_lr_decay:
             # decrease learning rate linearly
@@ -282,10 +283,11 @@ def main():
             except OSError:
                 pass
 
-            torch.save([
-                actor_critic,
-                getattr(utils.get_vec_normalize(envs), 'obs_rms', None)
-            ], os.path.join(save_path, args.env_name + ".pt"))
+            # torch.save([
+            #     actor_critic,
+            #     getattr(utils.get_vec_normalize(envs), 'obs_rms', None)
+            # ], os.path.join(save_path, args.env_name + ".pt"))
+            torch.save(actor_critic, os.path.join(save_path, args.env_name + ".pt"))
 
         if j % args.log_interval == 0 and len(episode_rewards) > 1:
             total_num_steps = (j + 1) * args.num_processes * args.num_steps
@@ -303,7 +305,7 @@ def main():
                 and j % args.eval_interval == 0):
             obs_rms = utils.get_vec_normalize(envs).obs_rms
             evaluate(actor_critic, obs_rms, args.env_name, args.seed,
-                     args.num_processes, eval_log_dir, device)
+                     args.num_processes, eval_log_dir, device, device_str)
 
 
 if __name__ == "__main__":
