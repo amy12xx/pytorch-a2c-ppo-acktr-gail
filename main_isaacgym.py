@@ -250,8 +250,9 @@ def main():
                 rollouts.masks[-1]).detach()
 
         if args.gail:
-            if j >= 10:
-                envs.venv.eval()
+            # TODO: Need to check how this impacts training
+            # if j >= 10:
+            #     envs.venv.eval()
 
             gail_epoch = args.gail_epoch
             if j < 10:
