@@ -303,8 +303,8 @@ def main():
 
         if (args.eval_interval is not None and len(episode_rewards) > 1
                 and j % args.eval_interval == 0):
-            obs_rms = utils.get_vec_normalize(envs).obs_rms
-            evaluate(actor_critic, obs_rms, args.env_name, args.seed,
+            # obs_rms = utils.get_vec_normalize(envs).obs_rms
+            evaluate(actor_critic, None, args.env_name, args.seed,
                      args.num_processes, eval_log_dir, device, device_str)
 
 
