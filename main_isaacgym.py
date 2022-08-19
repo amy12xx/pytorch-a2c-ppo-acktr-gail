@@ -194,6 +194,9 @@ def main():
     start = time.time()
     num_updates = int(
         args.num_env_steps) // args.num_steps // args.num_processes
+    
+    global_step = 0
+    start_time = time.time()
     for j in range(num_updates):
         actor_critic.train()
 
@@ -204,6 +207,7 @@ def main():
                 agent.optimizer.lr if args.algo == "acktr" else args.lr)
 
         for step in range(args.num_steps):
+            global_step += 1 * args.num_processes
             # Sample actions
             with torch.no_grad():
                 value, action, action_log_prob, recurrent_hidden_states = actor_critic.act(
@@ -212,6 +216,17 @@ def main():
 
             # Obser reward and next obs
             obs, reward, done, infos = envs.step(action)
+            if 0 <= step <= 2:
+                for idx, d in enumerate(done):
+                    if d:
+                        episodic_return = info["r"][idx].item()
+                        writer.add_scalar("charts/episodic_return", episodic_return, global_step)
+                        writer.add_scalar("charts/episodic_length", info["l"][idx], global_step)
+                        if "consecutive_successes" in info:  # ShadowHand and AllegroHand metric
+                            writer.add_scalar(
+                                "charts/consecutive_successes", info["consecutive_successes"].item(), global_step
+                            )
+                        break
 
             if isinstance(infos, dict):
                 if "r" in infos.keys():
@@ -307,6 +322,18 @@ def main():
             # obs_rms = utils.get_vec_normalize(envs).obs_rms
             evaluate(actor_critic, None, args.env_name, args.seed,
                      args.num_processes, eval_log_dir, device, device_str)
+
+        writer.add_scalar("charts/learning_rate", agent.optimizer.lr, global_step)
+        writer.add_scalar("losses/value_loss", value_loss, global_step)
+        writer.add_scalar("losses/policy_loss", action_loss, global_step)
+        writer.add_scalar("losses/entropy", dist_entropy, global_step)
+        # writer.add_scalar("losses/old_approx_kl", old_approx_kl.item(), global_step)
+        # writer.add_scalar("losses/approx_kl", approx_kl.item(), global_step)
+        # writer.add_scalar("losses/clipfrac", np.mean(clipfracs), global_step)
+        print("SPS:", int(global_step / (time.time() - start_time)))
+        writer.add_scalar("charts/SPS", int(global_step / (time.time() - start_time)), global_step)
+
+    writer.close()
 
 
 if __name__ == "__main__":
