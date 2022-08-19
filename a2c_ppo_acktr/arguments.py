@@ -159,9 +159,9 @@ def get_args():
         help="the name of this experiment")
     parser.add_argument("--track", type=lambda x: bool(strtobool(x)), default=False, nargs="?", const=True,
         help="if toggled, this experiment will be tracked with Weights and Biases")
-    parser.add_argument("--wandb-project-name", type=str, default="rl-imitation",
+    parser.add_argument("--wandb-project-name", type=str, default="vq-runs",
         help="the wandb's project name")
-    parser.add_argument("--wandb-entity", type=str, default="vq-runs",
+    parser.add_argument("--wandb-entity", type=str, default="rl-imitation",
         help="the entity (team) of wandb's project")
     parser.add_argument("--record-video-step-frequency", type=int, default=1464,
         help="the frequency at which to record the videos")
