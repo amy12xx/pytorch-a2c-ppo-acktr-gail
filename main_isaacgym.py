@@ -275,7 +275,7 @@ def main():
             for _ in range(gail_epoch):
                 # discr.update(gail_train_loader, rollouts,
                 #              utils.get_vec_normalize(envs)._obfilt)
-                discr.update(gail_train_loader, rollouts,
+                gail_loss = discr.update(gail_train_loader, rollouts,
                              agent.actor_critic.base.norm_obs_no_update)
 
             for step in range(args.num_steps):
@@ -330,8 +330,10 @@ def main():
         # writer.add_scalar("losses/old_approx_kl", old_approx_kl.item(), global_step)
         # writer.add_scalar("losses/approx_kl", approx_kl.item(), global_step)
         # writer.add_scalar("losses/clipfrac", np.mean(clipfracs), global_step)
-        print("SPS:", int(global_step / (time.time() - start_time)))
+        # print("SPS:", int(global_step / (time.time() - start_time)))
         writer.add_scalar("charts/SPS", int(global_step / (time.time() - start_time)), global_step)
+        if args.gail:
+            writer.add_scalar("losses/gail_loss", gail_loss, global_step)
 
     writer.close()
 
