@@ -323,7 +323,7 @@ def main():
             evaluate(actor_critic, None, args.env_name, args.seed,
                      args.num_processes, eval_log_dir, device, device_str)
 
-        writer.add_scalar("charts/learning_rate", agent.optimizer.lr, global_step)
+        writer.add_scalar("charts/learning_rate", agent.optimizer.param_groups[0]["lr"], global_step)
         writer.add_scalar("losses/value_loss", value_loss, global_step)
         writer.add_scalar("losses/policy_loss", action_loss, global_step)
         writer.add_scalar("losses/entropy", dist_entropy, global_step)
