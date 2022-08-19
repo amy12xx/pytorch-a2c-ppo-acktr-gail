@@ -219,12 +219,12 @@ def main():
             if 0 <= step <= 2:
                 for idx, d in enumerate(done):
                     if d:
-                        episodic_return = info["r"][idx].item()
+                        episodic_return = infos["r"][idx].item()
                         writer.add_scalar("charts/episodic_return", episodic_return, global_step)
-                        writer.add_scalar("charts/episodic_length", info["l"][idx], global_step)
-                        if "consecutive_successes" in info:  # ShadowHand and AllegroHand metric
+                        writer.add_scalar("charts/episodic_length", infos["l"][idx], global_step)
+                        if "consecutive_successes" in infos:  # ShadowHand and AllegroHand metric
                             writer.add_scalar(
-                                "charts/consecutive_successes", info["consecutive_successes"].item(), global_step
+                                "charts/consecutive_successes", infos["consecutive_successes"].item(), global_step
                             )
                         break
 
